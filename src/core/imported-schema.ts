@@ -1,5 +1,5 @@
 import { filterGenericSchemas, resolveSchema, simplifySchema } from "./schema-definition";
-import type { ApiPath, HttpMethod, HttpResponse, RequestBody } from "./openapi";
+import type { ApiPath, HttpMethod, HttpResponse, RequestBody, SchemaDefinition } from "./openapi";
 
 function resolveRequestSchemas(requestBody?: RequestBody) {
   if (!requestBody) return [];
@@ -25,4 +25,26 @@ export function resolveSchemas(paths: Record<string, Record<HttpMethod, ApiPath>
     }).flat();
   }).flat();
   return Array.from(new Set(collection));
+}
+
+function resolvePropDefinition(definition: SchemaDefinition) {
+  if (definition.type === "array" && definition.items) {
+    if (Array.isArray(definition.items)) {
+      return definition.items.map<string[]>(resolvePropDefinition).flat();
+    }
+    return [resolveSchema(definition.items)];
+  }
+  if (definition.$ref) {
+    return [definition.$ref.replace("#/components/schemas/", "")];
+  }
+  if (definition.oneOf) {
+    return definition.oneOf.map<string[]>(resolvePropDefinition).flat();
+  }
+  return [];
+}
+
+export function resolveSchemasFromProps(props: Record<string, SchemaDefinition>) {
+  const collection = Object.values(props).map(resolvePropDefinition).flat();
+  collection.sort();
+  return Array.from(new Set(filterGenericSchemas(collection)));
 }

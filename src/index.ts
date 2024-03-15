@@ -1,4 +1,4 @@
-import { resolveSchemas } from "./core/imported-schema";
+import { resolveSchemas, resolveSchemasFromProps } from "./core/imported-schema";
 import { generateInterface, saveInterface } from "./core/interface";
 import { getSwaggerJSON } from "./core/openapi";
 import { resolveOperations } from "./core/operation";
@@ -12,7 +12,8 @@ import readSource from "./core/source";
     for (const [schemaName, schema] of Object.entries(data.components.schemas)) {
       if (schema.type === "object") {
         const properties = resolveProperties(schema.properties, schema.required ?? []);
-        const content = generateSchema(schemaName, properties);
+        const importedSchemas = resolveSchemasFromProps(schema.properties);
+        const content = generateSchema(schemaName, properties, importedSchemas);
         await saveSchema(schemaName, content);
       }
     }

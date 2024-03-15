@@ -11,15 +11,17 @@ type ModelProperty = {
 };
 
 type SchemaTemplate = {
+  importedSchemas: string[],
   name: string,
   properties: ModelProperty[],
 };
 
-export function generateSchema(name: string, properties: ModelProperty[]) {
+export function generateSchema(name: string, properties: ModelProperty[], importedSchemas: string[]) {
   const template = Handlebars.compile<SchemaTemplate>(schemaTemplate);
   return template({
     name,
     properties,
+    importedSchemas,
   });
 }
 

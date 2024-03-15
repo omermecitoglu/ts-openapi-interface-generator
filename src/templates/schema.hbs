@@ -1,3 +1,7 @@
+{{#each importedSchemas}}
+import type {{this}} from "./{{this}}";
+{{/each}}
+
 type {{name}} = {
   {{#each properties}}
   /**
