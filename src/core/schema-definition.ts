@@ -1,5 +1,11 @@
 import type { SchemaDefinition } from "./openapi";
 
+function resolveArray(items: SchemaDefinition[], isArray: boolean) {
+  const schemas = items.map(resolveSchema);
+  const names = schemas.join(" | ");
+  return isArray ? `(${names})[]` : names;
+}
+
 export function resolveSchema(definition: SchemaDefinition): string {
   // TODO: handle definition.format === "date"
   if (definition.type) {
@@ -9,8 +15,7 @@ export function resolveSchema(definition: SchemaDefinition): string {
       case "array": {
         if (definition.items) {
           if (Array.isArray(definition.items)) {
-            const schemas = definition.items.map(resolveSchema);
-            return `(${schemas.join(" | ")})[]`;
+            return resolveArray(definition.items, true);
           }
           return `${resolveSchema(definition.items)}[]`;
         }
@@ -21,6 +26,9 @@ export function resolveSchema(definition: SchemaDefinition): string {
   }
   if (definition.$ref) {
     return definition.$ref.replace("#/components/schemas/", "");
+  }
+  if (definition.oneOf) {
+    return resolveArray(definition.oneOf, false);
   }
   return "unknown";
 }
@@ -33,6 +41,7 @@ export function filterGenericSchemas(resolvedSchemas: string[]) {
   const genericSchemas = [
     "string",
     "number",
+    "unknown",
   ];
   return resolvedSchemas.filter(s => !genericSchemas.includes(s));
 }

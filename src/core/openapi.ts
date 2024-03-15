@@ -11,6 +11,7 @@ export type SchemaDefinition = {
   readOnly: boolean,
   $ref?: string,
   items?: SchemaDefinition | SchemaDefinition[],
+  oneOf?: SchemaDefinition[],
 };
 
 export type PathParameter = {
