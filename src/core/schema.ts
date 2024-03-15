@@ -2,7 +2,8 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import Handlebars from "handlebars";
 import schemaTemplate from "~/templates/schema.hbs";
-import { type SchemaProperty, getSchemaPropertyType } from "./openapi";
+import { resolveSchema } from "./schema-definition";
+import type { SchemaDefinition } from "./openapi";
 
 type ModelProperty = {
   content: string,
@@ -22,12 +23,12 @@ export function generateSchema(name: string, properties: ModelProperty[]) {
   });
 }
 
-export function resolveProperties(collection: Record<string, SchemaProperty>, required: string[]) {
+export function resolveProperties(collection: Record<string, SchemaDefinition>, required: string[]) {
   return Object.entries(collection).map<ModelProperty>(([propertyName, property]) => {
     const isRequired = required.includes(propertyName);
     const content = [
       `${propertyName}${isRequired ? "" : "?"}:`,
-      `${getSchemaPropertyType(property)},`,
+      `${resolveSchema(property)},`,
     ];
     if (property.readOnly) content.unshift("readonly");
     return {

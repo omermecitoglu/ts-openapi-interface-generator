@@ -1,18 +1,14 @@
-export type SchemaProperty = {
-  type: "string" | "number",
-  format?: "date" | "unknown",
-  description: string,
-  readOnly: boolean,
-};
-
 type SchemaComponent = {
   type: "object" | "unknown",
-  properties: Record<string, SchemaProperty>,
+  properties: Record<string, SchemaDefinition>,
   required?: string[],
 };
 
 export type SchemaDefinition = {
-  type?: "string" | "array" | "object",
+  type?: "string" | "number" | "array" | "object",
+  format?: "date" | "unknown",
+  description: string,
+  readOnly: boolean,
   $ref?: string,
   items?: SchemaDefinition | SchemaDefinition[],
 };
@@ -60,13 +56,6 @@ type OpenApiSpecification = {
   },
   paths: Record<string, Record<HttpMethod, ApiPath>>,
 };
-
-export function getSchemaPropertyType(property: SchemaProperty) {
-  switch (property.format) {
-    // case "date": return "Date";
-    default: return property.type;
-  }
-}
 
 export async function getSwaggerJSON(base: string, specs?: string) {
   const url = new URL(specs ?? "/swagger", base);

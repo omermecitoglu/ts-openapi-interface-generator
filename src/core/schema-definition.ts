@@ -1,9 +1,11 @@
 import type { SchemaDefinition } from "./openapi";
 
 export function resolveSchema(definition: SchemaDefinition): string {
+  // TODO: handle definition.format === "date"
   if (definition.type) {
     switch (definition.type) {
       case "string": return "string";
+      case "number": return "number";
       case "array": {
         if (definition.items) {
           if (Array.isArray(definition.items)) {
