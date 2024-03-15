@@ -18,7 +18,7 @@ export type SchemaDefinition = {
 };
 
 export type PathParameter = {
-  in: "path" | "unknown",
+  in: "path" | "query" | "header" | "cookie",
   name: string,
   description: string,
   required: boolean,
