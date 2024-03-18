@@ -12,6 +12,7 @@ export type SchemaDefinition = {
   $ref?: string,
   items?: SchemaDefinition | SchemaDefinition[],
   oneOf?: SchemaDefinition[],
+  enum?: (string | null)[],
 };
 
 export type PathParameter = {

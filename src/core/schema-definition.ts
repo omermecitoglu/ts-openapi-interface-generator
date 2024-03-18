@@ -6,11 +6,21 @@ function resolveArray(items: SchemaDefinition[], isArray: boolean) {
   return isArray ? `(${names})[]` : names;
 }
 
+function resolveEnumItem(item: string | null) {
+  if (item === null) return "null";
+  return `"${item}"`;
+}
+
 export function resolveSchema(definition: SchemaDefinition): string {
   // TODO: handle definition.format === "date"
   if (definition.type) {
     switch (definition.type) {
-      case "string": return "string";
+      case "string": {
+        if (definition.enum) {
+          return definition.enum.map(resolveEnumItem).join(" | ");
+        }
+        return "string";
+      }
       case "number": return "number";
       case "array": {
         if (definition.items) {

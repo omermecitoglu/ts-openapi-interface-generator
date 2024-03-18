@@ -24,7 +24,7 @@ export function resolveSchemas(paths: Record<string, Record<HttpMethod, ApiPath>
       ];
     }).flat();
   }).flat();
-  return Array.from(new Set(collection));
+  return Array.from(new Set(collection)).toSorted();
 }
 
 function resolvePropDefinition(definition: SchemaDefinition) {
