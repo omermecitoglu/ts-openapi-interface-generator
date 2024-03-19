@@ -34,6 +34,7 @@ module.exports = {
   },
   externals: [
     "handlebars",
+    "yargs",
   ],
   externalsType: "commonjs",
 };
