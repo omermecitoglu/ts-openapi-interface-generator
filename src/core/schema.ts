@@ -2,6 +2,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import Handlebars from "handlebars";
 import schemaTemplate from "~/templates/schema.hbs";
+import getArgument from "./arguments";
 import { resolveSchema } from "./schema-definition";
 import type { SchemaDefinition } from "./openapi";
 
@@ -41,7 +42,8 @@ export function resolveProperties(collection: Record<string, SchemaDefinition>, 
 }
 
 export async function saveSchema(name: string, content: string) {
-  const schemasFolder = path.resolve(process.cwd(), "src", "schemas");
+  const outputDir = await getArgument("output") ?? "src";
+  const schemasFolder = path.resolve(process.cwd(), outputDir, "schemas");
   await fs.mkdir(schemasFolder, { recursive: true });
   const filePath = path.resolve(schemasFolder, `${name}.ts`);
   await fs.writeFile(filePath, content);
