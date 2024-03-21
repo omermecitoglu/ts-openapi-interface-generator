@@ -2,7 +2,7 @@ import yargs from "yargs";
 
 const argv = yargs.option("output", {
   alias: "o",
-  describe: "Specify the output directry",
+  describe: "Specify the output directory",
   type: "string",
   demandOption: false,
 }).argv;

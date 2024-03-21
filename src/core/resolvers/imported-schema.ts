@@ -1,12 +1,14 @@
+import type { OpenAPI, Operation, SchemaDefinition } from "~/core/openapi";
+import getContentSchema from "./content";
+import resolveEndpoints from "./enpoint";
 import { filterGenericSchemas, resolveSchema, simplifySchema } from "./schema-definition";
-import type { ApiPath, HttpMethod, HttpResponse, RequestBody, SchemaDefinition } from "./openapi";
 
-function resolveRequestSchemas(requestBody?: RequestBody) {
+function resolveRequestSchemas(requestBody: Operation["requestBody"]) {
   if (!requestBody) return [];
-  return [resolveSchema(requestBody.content["application/json"].schema)];
+  return [resolveSchema(getContentSchema(requestBody.content))];
 }
 
-function resolveResponseSchemas(responses: Record<string, HttpResponse>) {
+function resolveResponseSchemas(responses: Operation["responses"]) {
   return Object.values(responses).map(response => {
     const resolvedSchemas = Object.values(response.content ?? {}).map(content => {
       return simplifySchema(resolveSchema(content.schema));
@@ -15,15 +17,11 @@ function resolveResponseSchemas(responses: Record<string, HttpResponse>) {
   }).flat();
 }
 
-export function resolveSchemas(paths: Record<string, Record<HttpMethod, ApiPath>>) {
-  const collection = Object.values(paths).map(methods => {
-    return Object.values(methods).map(path => {
-      return [
-        ...resolveRequestSchemas(path.requestBody),
-        ...resolveResponseSchemas(path.responses),
-      ];
-    }).flat();
-  }).flat();
+export function resolveSchemas(paths: OpenAPI["paths"]) {
+  const collection = resolveEndpoints(paths).map(({ operation }) => ([
+    ...resolveRequestSchemas(operation.requestBody),
+    ...resolveResponseSchemas(operation.responses),
+  ])).flat();
   return Array.from(new Set(collection)).toSorted();
 }
 

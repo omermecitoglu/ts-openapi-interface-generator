@@ -1,9 +1,3 @@
-type SchemaComponent = {
-  type: "object" | "unknown",
-  properties: Record<string, SchemaDefinition>,
-  required?: string[],
-};
-
 export type SchemaDefinition = {
   type?: "string" | "number" | "array" | "object",
   format?: "date" | "unknown",
@@ -15,7 +9,13 @@ export type SchemaDefinition = {
   enum?: (string | null)[],
 };
 
-export type PathParameter = {
+type SchemaComponent = {
+  type: "object" | "unknown",
+  properties: Record<string, SchemaDefinition>,
+  required?: string[],
+};
+
+export type OperationParameter = {
   in: "path" | "query" | "header" | "cookie",
   name: string,
   description: string,
@@ -23,10 +23,10 @@ export type PathParameter = {
   schema: SchemaDefinition,
 };
 
-export type RequestBody = {
+type RequestBody = {
   description: string,
   required: boolean,
-  content: Record<ContentType, ResponseContent>,
+  content: Content,
 };
 
 type ResponseContent = {
@@ -35,33 +35,29 @@ type ResponseContent = {
 
 type ContentType = "application/json" | "text/plain";
 
-export type HttpResponse = {
+export type Content = Record<ContentType, ResponseContent>;
+
+type HttpResponse = {
   description: string,
-  content?: Record<ContentType, ResponseContent>,
+  content?: Content,
 };
 
 type HttpCode = "200" | "404";
 
-export type ApiPath = {
-  summary: string,
+export type Operation = {
   operationId: string,
-  parameters?: PathParameter[],
+  summary: string,
+  description: string,
+  parameters?: OperationParameter[],
   requestBody?: RequestBody,
   responses: Record<HttpCode, HttpResponse>,
 };
 
-export type HttpMethod = "get" | "post" | "patch" | "put" | "delete";
+type HttpMethod = "get" | "post" | "patch" | "put" | "delete";
 
-type OpenApiSpecification = {
+export type OpenAPI = {
   components: {
     schemas: Record<string, SchemaComponent>,
   },
-  paths: Record<string, Record<HttpMethod, ApiPath>>,
+  paths: Record<string, Record<HttpMethod, Operation>>,
 };
-
-export async function getSwaggerJSON(base: string, specs?: string) {
-  const url = new URL(specs ?? "/swagger", base);
-  const response = await fetch(url);
-  const data = await response.json();
-  return data as OpenApiSpecification;
-}

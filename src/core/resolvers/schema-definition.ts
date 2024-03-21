@@ -1,4 +1,4 @@
-import type { SchemaDefinition } from "./openapi";
+import type { SchemaDefinition } from "~/core/openapi";
 
 function resolveArray(items: SchemaDefinition[], isArray: boolean) {
   const schemas = items.map(resolveSchema);
